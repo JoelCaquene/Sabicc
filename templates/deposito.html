@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC | Depósito{% endblock %}
+
+{% block content %}
+<div id="successModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #11141b; border-radius: 30px; width: 100%; max-width: 340px; padding: 30px; text-align: center; border: 1px solid #334155;">
+        <div style="font-size: 50px; color: #22c55e; margin-bottom: 15px;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 style="color: #fff; margin-bottom: 10px;">Depósito Enviado!</h3>
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">
+            Aguarde de 5 a 15 minutos para ser aprovado pela nossa central.
+        </p>
+        <button onclick="window.location.href='{% url 'home' %}'" style="width: 100%; padding: 15px; border-radius: 12px; background: #f5b300; color: #000; font-weight: 800; border: none; cursor: pointer;">FECHAR</button>
+    </div>
+</div>
+
+<div class="deposit-container">
+    <div class="terminal-header-mini">
+        <div class="brand-badge">S</div>
+        <div class="header-info">
+            <h2>DEPOSITAR <span class="badge-gold">SECURE</span></h2>
+            <p><i class="fas fa-circle-notch fa-spin"></i> Conexão Encriptada</p>
+        </div>
+    </div>
+
+    <div id="currency-gate" class="animate-fade">
+        <h4 class="section-title">SELECIONE A MOEDA</h4>
+        <div class="currency-grid">
+            <button type="button" class="curr-card" onclick="selectCurrency('AO', 'KZ', 1)">
+                <span class="curr-flag">🇦🇴</span>
+                <span class="curr-name">Kwanza</span>
+                <span class="curr-symbol">KZ</span>
+            </button>
+            <button type="button" class="curr-card" onclick="selectCurrency('MZ', 'MT', 0.07)">
+                <span class="curr-flag">🇲🇿</span>
+                <span class="curr-name">Metical</span>
+                <span class="curr-symbol">MT</span>
+            </button>
+            <button type="button" class="curr-card" onclick="selectCurrency('USDT', 'USDT', 0.0011)">
+                <span class="curr-flag">🪙</span>
+                <span class="curr-name">Tether</span>
+                <span class="curr-symbol">USDT</span>
+            </button>
+            <button type="button" class="curr-card" onclick="selectCurrency('BR', 'R$', 0.006)">
+                <span class="curr-flag">🇧🇷</span>
+                <span class="curr-name">Real</span>
+                <span class="curr-symbol">R$</span>
+            </button>
+            <button type="button" class="curr-card" onclick="selectCurrency('EU', '€', 0.001)">
+                <span class="curr-flag">🇪🇺</span>
+                <span class="curr-name">Euro</span>
+                <span class="curr-symbol">€</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="main-form-area" style="display: none;">
+        <div class="stepper">
+            <div class="step-item"><div class="circle active" id="circle-1">1</div></div>
+            <div class="line"></div>
+            <div class="step-item"><div class="circle" id="circle-2">2</div></div>
+            <div class="line"></div>
+            <div class="step-item"><div class="circle" id="circle-3">3</div></div>
+        </div>
+
+        <form id="deposit-form" method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="amount" id="id_amount">
+            <input type="hidden" name="payment_method" id="id_payment_method" value="bank">
+            <input type="hidden" name="selected_bank" id="id_selected_bank">
+
+            <div id="step-1" class="step-content animate-up">
+                <div class="glass-card-dark">
+                    <div class="selected-badge">Ativo: <span id="active-curr">KZ</span></div>
+                    <label class="label-gold">MONTANTE A DEPOSITAR</label>
+                    <div class="input-terminal">
+                        <span id="symbol-display">KZ</span>
+                        <input type="number" id="manual-amount" placeholder="0.00" inputmode="decimal">
+                    </div>
+                    <div id="conversion-preview" class="conversion-text">Base: 0.00 KZ</div>
+                </div>
+
+                <div class="rules-dark">
+                    <h4><i class="fas fa-shield-alt"></i> REGRAS DO TERMINAL</h4>
+                    <ul>
+                        <li>Mínimo operacional: 10.000 KZ equivalente.</li>
+                        <li>O comprovativo deve ser o original (PDF/Foto).</li>
+                        <li>Aprovação estimada entre 5 a 30 minutos.</li>
+                    </ul>
+                </div>
+                
+                <button type="button" class="btn-main-gold" id="to-step-2" disabled>CONTINUAR</button>
+                <button type="button" class="btn-back" onclick="location.reload()"><i class="fas fa-undo"></i> Alterar Moeda</button>
+            </div>
+
+            <div id="step-2" class="step-content" style="display: none;">
+                <h4 class="section-title">DESTINO DOS FUNDOS</h4>
+                <div class="bank-list">
+                    {% for bank in platform_bank_details %}
+                        <button type="button" class="bank-option-btn" data-bank-id="{{ forloop.counter }}">
+                            <div class="bank-icon-box"><i class="fas fa-university"></i></div>
+                            <span>{{ bank.bank_name }}</span>
+                        </button>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn-main-gold" id="to-step-3" disabled>VER COORDENADAS</button>
+            </div>
+
+            <div id="step-3" class="step-content" style="display: none;">
+                <div class="bank-details-wrapper">
+                    {% for bank in platform_bank_details %}
+                        <div id="details-{{ forloop.counter }}" class="bank-info-card" style="display: none;">
+                            <div class="data-row">
+                                <label>COORDENADAS PARA TRANSFERÊNCIA</label>
+                                <div class="copy-terminal">
+                                    <input type="text" value="{{ bank.IBAN }}" id="iban-{{ forloop.counter }}" readonly>
+                                    <button type="button" onclick="copyText('iban-{{ forloop.counter }}')"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="upload-section">
+                    <p class="label-gold">ANEXAR COMPROVATIVO</p>
+                    <div class="upload-terminal" onclick="document.getElementById('file-upload').click()">
+                        <i class="fas fa-file-upload"></i>
+                        <input type="file" name="proof_of_payment" id="file-upload" hidden accept="image/*,.pdf">
+                        <span id="file-name">Selecionar Arquivo</span>
+                    </div>
+                    <input type="text" name="payer_name" id="id_payer_name" placeholder="Nome do Depositante" class="terminal-input">
+                </div>
+
+                <button type="submit" class="btn-main-green">FINALIZAR DEPÓSITO</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    :root { --dark-bg: #05070a; --card-bg: #11141b; --gold: #f5b300; --border: #1e293b; --text-dim: #94a3b8; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: var(--dark-bg); color: #fff; margin: 0; overflow-x: hidden; }
+    .deposit-container { width: 100%; max-width: 400px; margin: 0 auto; padding: 15px; }
+    .terminal-header-mini { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .brand-badge { width: 40px; height: 40px; background: var(--gold); color: #000; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 20px; }
+    .header-info h2 { font-size: 14px; margin: 0; }
+    .header-info p { font-size: 10px; color: #22c55e; margin: 0; }
+    .section-title { font-size: 12px; color: var(--gold); margin-bottom: 15px; text-align: center; letter-spacing: 1px; }
+    .currency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .curr-card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px 5px; border-radius: 12px; color: #fff; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .curr-flag { font-size: 20px; margin-bottom: 5px; }
+    .curr-name { font-size: 11px; color: var(--text-dim); }
+    .curr-symbol { font-size: 14px; font-weight: 800; color: var(--gold); }
+    .stepper { display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+    .circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; font-size: 10px; color: var(--text-dim); }
+    .circle.active { border-color: var(--gold); color: var(--gold); }
+    .circle.checked { background: var(--gold); color: #000; border-color: var(--gold); }
+    .line { width: 30px; height: 1px; background: var(--border); margin: 0 8px; }
+    .glass-card-dark { background: var(--card-bg); border: 1px solid var(--border); border-radius: 15px; padding: 15px; position: relative; }
+    .selected-badge { position: absolute; top: -10px; right: 15px; background: var(--gold); color: #000; padding: 2px 8px; border-radius: 5px; font-size: 9px; font-weight: 800; }
+    .input-terminal { display: flex; align-items: center; background: #000; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin: 10px 0; }
+    .input-terminal span { color: var(--gold); font-weight: 800; padding-right: 12px; border-right: 1px solid var(--border); }
+    .input-terminal input { background: transparent; border: none; width: 100%; color: #fff; font-size: 20px; font-weight: 800; padding-left: 12px; outline: none; }
+    .rules-dark { background: rgba(245, 179, 0, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin: 15px 0; }
+    .rules-dark h4 { font-size: 11px; color: var(--gold); margin: 0 0 8px; }
+    .rules-dark ul { padding: 0; margin: 0; list-style: none; font-size: 10px; color: var(--text-dim); }
+    .bank-option-btn { width: 100%; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; align-items: center; color: #fff; margin-bottom: 10px; }
+    .bank-icon-box { width: 35px; height: 35px; background: #000; border-radius: 8px; display: grid; place-items: center; color: var(--gold); margin-right: 12px; }
+    .bank-option-btn.active { border-color: var(--gold); }
+    .copy-terminal { display: flex; gap: 8px; margin-top: 5px; }
+    .copy-terminal input { flex: 1; background: #000; border: 1px solid var(--border); padding: 10px; border-radius: 8px; color: #fff; font-size: 12px; }
+    .copy-terminal button { background: var(--gold); color: #000; border: none; padding: 0 12px; border-radius: 8px; }
+    .upload-terminal { border: 2px dashed var(--border); background: #000; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; color: var(--text-dim); font-size: 11px; }
+    .terminal-input { width: 100%; background: #000; border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: #fff; margin-bottom: 10px; outline: none; }
+    .btn-main-gold { width: 100%; padding: 15px; border-radius: 12px; background: var(--gold); color: #000; font-weight: 800; border: none; }
+    .btn-main-green { width: 100%; padding: 15px; border-radius: 12px; background: #22c55e; color: #fff; font-weight: 800; border: none; }
+    .btn-back { width: 100%; background: transparent; color: var(--text-dim); border: none; font-size: 10px; margin-top: 10px; }
+    .animate-up { animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+    const menuRates = { 'AO': 1, 'USDT': 0.0011, 'BR': 0.006, 'EU': 0.001, 'MZ': 0.07 };
+    let selectedRate = 1;
+    let selectedSymbol = 'KZ';
+
+    function selectCurrency(code, symbol, rate) {
+        selectedRate = menuRates[code];
+        selectedSymbol = symbol;
+        document.getElementById('active-curr').innerText = symbol;
+        document.getElementById('symbol-display').innerText = symbol;
+        document.getElementById('currency-gate').style.display = 'none';
+        document.getElementById('main-form-area').style.display = 'block';
+        document.getElementById('manual-amount').value = '';
+        document.getElementById('conversion-preview').innerText = `Base: 0.00 KZ`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const manualInput = document.getElementById('manual-amount');
+        const next1 = document.getElementById('to-step-2');
+        const form = document.getElementById('deposit-form');
+
+        manualInput.addEventListener('input', () => {
+            const digitado = parseFloat(manualInput.value) || 0;
+            let valorKwanza = (selectedRate !== 1) ? digitado / selectedRate : digitado;
+            document.getElementById('conversion-preview').innerText = `Base: ${valorKwanza.toLocaleString('pt-AO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KZ`;
+            document.getElementById('id_amount').value = valorKwanza.toFixed(2);
+            next1.disabled = (digitado <= 0);
+        });
+
+        next1.addEventListener('click', () => {
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+            document.getElementById('circle-1').classList.add('checked');
+            document.getElementById('circle-1').innerText = '✓';
+            document.getElementById('circle-2').classList.add('active');
+        });
+
+        document.querySelectorAll('.bank-option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.bank-option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('id_selected_bank').value = btn.dataset.bankId;
+                document.getElementById('to-step-3').disabled = false;
+            });
+        });
+
+        document.getElementById('to-step-3').addEventListener('click', () => {
+            const bId = document.getElementById('id_selected_bank').value;
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-3').style.display = 'block';
+            document.getElementById('details-' + bId).style.display = 'block';
+            document.getElementById('circle-2').classList.add('checked');
+            document.getElementById('circle-2').innerText = '✓';
+            document.getElementById('circle-3').classList.add('active');
+        });
+
+        document.getElementById('file-upload').addEventListener('change', function() {
+            if(this.files[0]) document.getElementById('file-name').innerText = this.files[0].name;
+        });
+
+        // LÓGICA DE ENVIO COM MODAL
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(() => {
+                document.getElementById('successModal').style.display = 'flex';
+            }).catch(() => {
+                alert("Erro ao processar. Verifique sua conexão.");
+            });
+        };
+    });
+
+    function copyText(id) {
+        const input = document.getElementById(id);
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        alert("Copiado!");
+    }
+</script>
+{% endblock %}

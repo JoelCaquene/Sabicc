@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC | Planos de Investimento{% endblock %}
+
+{% block content %}
+<div id="currencyModal" class="modal-overlay">
+    <div class="modal-premium">
+        <div class="modal-top-bar"></div>
+        <h3>SELECIONE SUA MOEDA</h3>
+        <p>Escolha a moeda local para ativar o seu plano VIP:</p>
+        
+        <div class="currency-options">
+            <button class="btn-currency" onclick="updateView('AO', 1, 'KZ')">🇦🇴 ANGOLA (KZ)</button>
+            <button class="btn-currency" onclick="updateView('USDT', 0.0011, 'USDT')">🇺🇸 DOLAR (USDT)</button>
+            <button class="btn-currency" onclick="updateView('BR', 0.006, 'R$')">🇧🇷 BRASIL (R$)</button>
+            <button class="btn-currency" onclick="updateView('EU', 0.001, '€')">🇪🇺 EUROPA (€)</button>
+            <button class="btn-currency" onclick="updateView('MZ', 0.07, 'MT')">🇲🇿 MOÇAMBIQUE (MT)</button>
+        </div>
+    </div>
+</div>
+
+<div class="level-container">
+    <header class="terminal-header-mini">
+        <a href="{% url 'home' %}" class="btn-back"><i class="fas fa-chevron-left"></i></a>
+        <div class="header-info">
+            <h1>PLANOS DE PRODUÇÃO</h1>
+            <span class="current-currency-label" id="active-currency-tag">AGUARDANDO SELEÇÃO...</span>
+        </div>
+    </header>
+
+    <div class="level-list">
+        {% for level in levels %}
+        <div class="level-card-row {% if level.id in user_levels %}active-border{% endif %}">
+            <div class="card-left">
+                <span class="level-badge">VIP {{ level.name }}</span>
+                <div class="main-price">
+                    <span class="val-convert" data-base="{{ level.deposit_value }}">{{ level.deposit_value }}</span>
+                    <small class="symb-convert">KZ</small>
+                </div>
+            </div>
+
+            <div class="card-center">
+                <div class="mini-stat">
+                    <small>DIÁRIO:</small>
+                    <div>
+                        <span class="text-green val-convert" data-base="{{ level.daily_gain }}">{{ level.daily_gain }}</span>
+                        <span class="symb-convert tiny">KZ</span>
+                    </div>
+                </div>
+                <div class="mini-stat">
+                    <small>TOTAL:</small>
+                    <div>
+                        <span class="text-gold val-convert" data-base="{{ level.monthly_gain }}">{{ level.monthly_gain }}</span>
+                        <span class="symb-convert tiny">KZ</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-right">
+                {% if level.id in user_levels %}
+                    <span class="status-active">ATIVO</span>
+                {% else %}
+                    <form method="post" action="{% url 'nivel' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="level_id" value="{{ level.id }}">
+                        <button type="submit" class="btn-activate">ATIVAR</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    :root {
+        --dark-bg: #05070a;
+        --card-bg: #11141b;
+        --gold: #f5b300;
+        --text-p: #94a3b8;
+        --border: #1e293b;
+    }
+
+    body {
+        background-color: var(--dark-bg) !important;
+        color: #fff;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }
+
+    .level-container { padding: 20px; max-width: 500px; margin: 0 auto; }
+
+    /* HEADER */
+    .terminal-header-mini {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .btn-back {
+        width: 38px; height: 38px; border-radius: 10px;
+        background: var(--card-bg); border: 1px solid var(--border);
+        color: #fff; display: grid; place-items: center; text-decoration: none;
+    }
+    .header-info h1 { font-size: 15px; margin: 0; font-weight: 800; letter-spacing: 0.5px; }
+    .current-currency-label { font-size: 10px; color: var(--gold); font-weight: 600; text-transform: uppercase; }
+
+    /* LISTA DE CARDS EM LINHA ÚNICA */
+    .level-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .level-card-row {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .active-border { border-color: var(--gold); background: #161a24; }
+
+    .card-left { flex: 1; }
+    .level-badge { display: block; font-size: 9px; font-weight: 700; color: var(--text-p); margin-bottom: 2px; }
+    .main-price { font-size: 16px; font-weight: 800; color: #fff; }
+    .main-price small { font-size: 10px; color: var(--gold); margin-left: 2px; }
+
+    .card-center {
+        flex: 1.2;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding-left: 15px;
+        border-left: 1px solid #1e293b;
+    }
+    .mini-stat { display: flex; justify-content: space-between; align-items: center; padding-right: 10px; }
+    .mini-stat small { color: var(--text-p); font-size: 8px; font-weight: 600; }
+    .mini-stat span { font-size: 11px; font-weight: 700; }
+    .symb-convert.tiny { font-size: 8px; margin-left: 1px; color: var(--text-p); }
+    
+    .text-green { color: #22c55e; }
+    .text-gold { color: var(--gold); }
+
+    .btn-activate {
+        background: var(--gold); color: #000; border: none;
+        padding: 7px 14px; border-radius: 6px; font-size: 10px;
+        font-weight: 800; cursor: pointer; transition: 0.2s;
+    }
+    .btn-activate:active { transform: scale(0.95); }
+
+    .status-active { color: #22c55e; font-size: 10px; font-weight: 800; padding-right: 5px; }
+
+    /* MODAL ESTILIZADO */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.98);
+        backdrop-filter: blur(10px); z-index: 9999;
+        display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-premium {
+        background: #0f1218; border-radius: 20px; width: 100%; max-width: 300px;
+        padding: 25px; text-align: center; border: 1px solid #1e293b;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .modal-top-bar { width: 40px; height: 4px; background: var(--gold); margin: 0 auto 15px; border-radius: 10px; }
+    .modal-premium h3 { font-size: 16px; color: #fff; margin-bottom: 10px; font-weight: 800; }
+    .modal-premium p { font-size: 11px; color: var(--text-p); margin-bottom: 20px; line-height: 1.4; }
+    
+    .currency-options { display: flex; flex-direction: column; gap: 8px; }
+    .btn-currency {
+        background: #1a1f29; border: 1px solid #2d3748;
+        color: #fff; padding: 12px 15px; border-radius: 10px;
+        font-size: 11px; font-weight: 700; cursor: pointer; text-align: left;
+        transition: 0.2s;
+    }
+    .btn-currency:hover { border-color: var(--gold); background: #242b38; }
+</style>
+
+<script>
+    // Função chamada ao clicar em uma moeda no Modal
+    function updateView(code, rate, symbol) {
+        // 1. Atualiza o rótulo do cabeçalho
+        document.getElementById('active-currency-tag').innerText = `MOEDA: ${code} (${symbol})`;
+
+        // 2. Converte todos os valores numéricos
+        document.querySelectorAll('.val-convert').forEach(el => {
+            const baseValue = parseFloat(el.getAttribute('data-base'));
+            const converted = (baseValue * rate).toLocaleString('pt-BR', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+            el.innerText = converted;
+        });
+
+        // 3. Atualiza todos os símbolos de moeda
+        document.querySelectorAll('.symb-convert').forEach(el => {
+            el.innerText = symbol;
+        });
+
+        // 4. Esconde o modal
+        document.getElementById('currencyModal').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('currencyModal').style.display = 'none';
+        }, 300);
+    }
+
+    // Garante que o modal esteja visível ao carregar a página, independente do cache
+    window.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('currencyModal').style.display = 'flex';
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC | Perfil{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
+<div class="profile-page-wrapper">
+    
+    {# HEADER #}
+    <header class="terminal-header-mini">
+        <a href="{% url 'menu' %}" class="btn-back">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <div class="header-info">
+            <h1>CENTRAL DA CONTA</h1>
+            <span class="current-currency-label">SABIC INTERNATIONAL</span>
+        </div>
+    </header>
+
+    {# ALERTAS #}
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="toast-alert alert-{{ message.tags }}">
+                    <i class="fas fa-info-circle"></i> {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# MENU PRINCIPAL #}
+    <div class="profile-content-area">
+        <nav class="vertical-nav-menu">
+            <button class="nav-item" onclick="openModal('modal-payment-choice')">
+                <div class="nav-icon bg-gold-box"><i class="fas fa-wallet"></i></div>
+                <div class="nav-text">
+                    <span class="nav-title">Vincular Pagamento</span>
+                    <span class="nav-sub">Crypto ou Banco Local</span>
+                </div>
+                <i class="fas fa-plus gold-plus"></i>
+            </button>
+
+            <button class="nav-item" onclick="openModal('modal-history')">
+                <div class="nav-icon bg-dark-box"><i class="fas fa-history"></i></div>
+                <div class="nav-text">
+                    <span class="nav-title">Histórico</span>
+                    <span class="nav-sub">Registros de saques</span>
+                </div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </button>
+
+            <button class="nav-item" onclick="openModal('modal-password')">
+                <div class="nav-icon bg-dark-box"><i class="fas fa-user-lock"></i></div>
+                <div class="nav-text">
+                    <span class="nav-title">Segurança</span>
+                    <span class="nav-sub">Alterar palavra-passe</span>
+                </div>
+                <i class="fas fa-chevron-right arrow"></i>
+            </button>
+
+            <a href="{% static 'app/sabic.apk' %}" class="nav-item no-decoration" download>
+                <div class="nav-icon bg-blue-box"><i class="fas fa-download"></i></div>
+                <div class="nav-text">
+                    <span class="nav-title">Baixar Aplicativo</span>
+                    <span class="nav-sub">Versão Android APK</span>
+                </div>
+                <i class="fas fa-cloud-download-alt arrow"></i>
+            </a>
+
+            <a href="{% url 'login' %}" class="nav-item no-decoration logout-border">
+                <div class="nav-icon bg-red-box"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="nav-text">
+                    <span class="nav-title">Sair da Conta</span>
+                    <span class="nav-sub">Finalizar sessão atual</span>
+                </div>
+            </a>
+        </nav>
+    </div>
+</div>
+
+<div id="modal-payment-choice" class="modal-overlay">
+    <div class="modal-content animate-up">
+        <div class="modal-header">
+            <h3>MÉTODO DE RECEBIMENTO</h3>
+            <button class="close-modal" onclick="closeModal('modal-payment-choice')">&times;</button>
+        </div>
+        <div class="choice-grid">
+            <div class="choice-card" onclick="openModal('modal-crypto-form'); closeModal('modal-payment-choice');">
+                <i class="fab fa-bitcoin gold-text"></i>
+                <span>Carteira Crypto</span>
+            </div>
+            <div class="choice-card" onclick="openModal('modal-bank-form'); closeModal('modal-payment-choice');">
+                <i class="fas fa-university gold-text"></i>
+                <span>Banco Local</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-crypto-form" class="modal-overlay">
+    <div class="modal-content animate-up">
+        <div class="modal-header">
+            <h3>VINCULAR CARTEIRA</h3>
+            <button class="close-modal" onclick="closeModal('modal-crypto-form')">&times;</button>
+        </div>
+        <form method="post" class="styled-form-dark">
+            {% csrf_token %}
+            <div class="input-group-dark">
+                <label>SELECIONAR REDE</label>
+                <select name="bank_name" class="custom-select">
+                    <option value="TRC20-USDT">TRC20-USDT (Tether)</option>
+                    <option value="BNB">BNB (Smart Chain)</option>
+                    <option value="REDPAY">REDPAY</option>
+                </select>
+            </div>
+            <div class="input-group-dark">
+                <label>ENDEREÇO DA CARTEIRA OU ID</label>
+                <input type="text" name="IBAN" placeholder="Cole o endereço aqui..." required>
+            </div>
+            <div class="input-group-dark">
+                <label>NOME DO TITULAR</label>
+                <input type="text" name="account_holder_name" placeholder="Seu nome completo">
+            </div>
+            <button type="submit" name="update_bank" class="btn-gold-action">SALVAR ENDEREÇO</button>
+        </form>
+    </div>
+</div>
+
+<div id="modal-bank-form" class="modal-overlay">
+    <div class="modal-content animate-up">
+        <div class="modal-header">
+            <h3>COORDENADAS BANCÁRIAS</h3>
+            <button class="close-modal" onclick="closeModal('modal-bank-form')">&times;</button>
+        </div>
+        <form method="post" class="styled-form-dark">
+            {% csrf_token %}
+            <div class="input-group-dark">
+                <label>NOME DO BANCO</label>
+                {{ form.bank_name }}
+            </div>
+            <div class="input-group-dark">
+                <label>IBAN (INTERNACIONAL)</label>
+                {{ form.IBAN }}
+            </div>
+            <div class="input-group-dark">
+                <label>TITULAR DA CONTA</label>
+                {{ form.account_holder_name }}
+            </div>
+            <button type="submit" name="update_bank" class="btn-gold-action">VINCULAR CONTA</button>
+        </form>
+    </div>
+</div>
+
+<div id="modal-history" class="modal-overlay">
+    <div class="modal-content animate-up full-height">
+        <div class="modal-header">
+            <h3>MEU HISTÓRICO</h3>
+            <button class="close-modal" onclick="closeModal('modal-history')">&times;</button>
+        </div>
+        <div class="history-list">
+            {% for record in withdrawal_records %}
+            <div class="history-card-dark status-{{ record.status|lower }}">
+                <div class="h-info">
+                    <span class="h-amount">{{ record.amount }} <small>KZ</small></span>
+                    
+                    <div style="font-size: 0.85rem; color: #f5b300; font-weight: bold; margin-top: 2px;">
+                        {{ record.amount_converted }}
+                    </div>
+
+                    <span class="h-date" style="display: block; margin-top: 5px;">
+                        {{ record.created_at|date:"d M, H:i" }} | {{ record.method }}
+                    </span>
+                </div>
+                <span class="h-status-badge">{{ record.status|upper }}</span>
+            </div>
+            {% empty %}
+            <p class="empty-msg">Nenhum registro encontrado.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="modal-password" class="modal-overlay">
+    <div class="modal-content animate-up">
+        <div class="modal-header">
+            <h3>SEGURANÇA</h3>
+            <button class="close-modal" onclick="closeModal('modal-password')">&times;</button>
+        </div>
+        <form method="post" class="styled-form-dark">
+            {% csrf_token %}
+            <div class="input-group-dark">
+                <label>SENHA ATUAL</label>
+                {{ password_form.old_password }}
+            </div>
+            <div class="input-group-dark">
+                <label>NOVA SENHA</label>
+                {{ password_form.new_password1 }}
+            </div>
+            <div class="input-group-dark">
+                <label>REPETIR NOVA SENHA</label>
+                {{ password_form.new_password2 }}
+            </div>
+            <button type="submit" name="change_password" class="btn-white-action">ATUALIZAR SENHA</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --dark-bg: #05070a;
+        --card-bg: #11141b;
+        --gold: #f5b300;
+        --border: #1e293b;
+        --text-p: #94a3b8;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { 
+        background-color: var(--dark-bg) !important; 
+        color: #fff; 
+        font-family: 'Poppins', sans-serif; 
+        margin: 0; 
+        overflow-x: hidden; /* Evita rolagem horizontal */
+    }
+
+    .profile-page-wrapper { width: 100%; max-width: 480px; margin: 0 auto; padding: 20px; }
+
+    /* HEADER */
+    .terminal-header-mini { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+    .btn-back {
+        width: 38px; height: 38px; border-radius: 10px;
+        background: var(--card-bg); border: 1px solid var(--border);
+        color: #fff; display: grid; place-items: center; text-decoration: none;
+    }
+    .header-info h1 { font-size: 14px; margin: 0; font-weight: 800; color: #fff; }
+    .current-currency-label { font-size: 10px; color: var(--gold); font-weight: 600; }
+
+    /* NAV ITEMS */
+    .vertical-nav-menu { display: flex; flex-direction: column; gap: 10px; }
+    .nav-item {
+        width: 100%; background: var(--card-bg); border: 1px solid var(--border);
+        border-radius: 14px; padding: 15px; display: flex; align-items: center;
+        cursor: pointer; color: #fff; transition: 0.2s; outline: none;
+    }
+    .no-decoration { text-decoration: none; }
+    .nav-icon { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; margin-right: 15px; font-size: 1.1rem; }
+    .bg-gold-box { background: rgba(245, 179, 0, 0.1); color: var(--gold); }
+    .bg-dark-box { background: #1e293b; color: var(--text-p); }
+    .bg-blue-box { background: rgba(49, 130, 206, 0.1); color: #3182ce; }
+    .bg-red-box { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+    
+    .nav-text { flex: 1; text-align: left; }
+    .nav-title { display: block; font-size: 13px; font-weight: 700; }
+    .nav-sub { font-size: 10px; color: var(--text-p); }
+    .gold-plus { color: var(--gold); font-size: 12px; }
+    .logout-border { border-color: rgba(248, 113, 113, 0.3); }
+
+    /* MODAIS */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); display: none; justify-content: center;
+        align-items: flex-end; z-index: 1000;
+    }
+    .modal-content {
+        background: var(--card-bg); width: 100%; max-width: 480px;
+        border-radius: 24px 24px 0 0; padding: 25px; border-top: 2px solid var(--gold);
+        max-height: 90vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h3 { font-size: 14px; margin: 0; font-weight: 800; color: var(--gold); }
+    .close-modal { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+
+    /* GRID DE ESCOLHA */
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px 0; }
+    .choice-card {
+        background: #05070a; border: 1px solid var(--border); border-radius: 16px;
+        padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+    }
+    .choice-card i { font-size: 30px; margin-bottom: 10px; display: block; }
+    .choice-card span { font-size: 12px; font-weight: 700; }
+    .choice-card:hover { border-color: var(--gold); background: #161a24; }
+
+    /* FORMULÁRIO */
+    .input-group-dark { margin-bottom: 15px; }
+    .input-group-dark label { display: block; font-size: 10px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+    .input-group-dark input, .custom-select {
+        width: 100%; background: #05070a; border: 1px solid var(--border);
+        padding: 14px; border-radius: 12px; color: #fff; font-size: 13px; outline: none;
+    }
+    .custom-select { appearance: none; }
+
+    .btn-gold-action {
+        width: 100%; background: var(--gold); color: #000; border: none;
+        padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px;
+    }
+    .btn-white-action {
+        width: 100%; background: #fff; color: #000; border: none;
+        padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer;
+    }
+
+    /* HISTÓRICO */
+    .history-card-dark {
+        background: #05070a; border: 1px solid var(--border);
+        padding: 15px; border-radius: 12px; margin-bottom: 10px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .h-amount { font-weight: 800; font-size: 15px; }
+    .h-date { display: block; font-size: 10px; color: var(--text-p); }
+    .h-status-badge { font-size: 9px; font-weight: 900; padding: 5px 10px; border-radius: 6px; }
+    .status-pendente .h-status-badge { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+    .status-aprovado .h-status-badge { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+
+    /* ANIMAÇÃO */
+    .animate-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .gold-text { color: var(--gold); }
+    .empty-msg { text-align: center; color: var(--text-p); font-size: 12px; margin-top: 20px; }
+</style>
+
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Impede rolagem do fundo
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Fecha modal se clicar fora do conteúdo
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+</script>
+{% endblock %}

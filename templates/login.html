@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SABIC - Login Profissional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0055a4;
+            --accent-cyan: #00d4ff;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --bg-country: linear-gradient(135deg, #ce1126 0%, #000000 50%, #f9d616 100%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-country);
+            background-attachment: fixed;
+            background-size: cover;
+            transition: background 0.8s ease;
+            overflow-x: hidden;
+        }
+
+        /* 1. CABEÇALHO ELETROQUÍMICO (Identidade SABIC) */
+        .header-electro {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .sabic-logo-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 10px;
+            z-index: 2;
+            text-shadow: 0 0 20px var(--accent-cyan);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        /* 2. ABAS E CONTAINER DE VIDRO */
+        .auth-tabs {
+            display: flex;
+            width: 92%;
+            max-width: 450px;
+            z-index: 5;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--glass-border);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            background: var(--glass-bg);
+            color: var(--primary-blue);
+        }
+
+        .login-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 35px 25px;
+            width: 92%;
+            max-width: 450px;
+            border-radius: 0 0 25px 25px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* 3. FORMULÁRIO E INDICADORES */
+        .form-group { margin-bottom: 20px; text-align: left; }
+        
+        .form-group label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.main-icon {
+            position: absolute;
+            left: 15px;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            z-index: 5;
+        }
+
+        /* Seletor de Países no Login */
+        .country-select {
+            position: absolute;
+            left: 42px;
+            border: none;
+            background: rgba(255,255,255,0.6);
+            padding: 5px;
+            border-radius: 8px;
+            font-weight: 700;
+            z-index: 5;
+            outline: none;
+            cursor: pointer;
+            width: 80px;
+        }
+
+        /* Estilização para os inputs do Django */
+        .auth-form input {
+            width: 100%;
+            padding: 16px 15px 16px 50px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        /* Campo de usuário precisa de espaço para o seletor */
+        input[name="username"] { padding-left: 130px !important; }
+
+        .auth-form input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 10px rgba(0,85,164,0.15);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
+            color: #999;
+            z-index: 10;
+        }
+
+        /* ERROS DO DJANGO */
+        .errorlist {
+            list-style: none;
+            padding: 15px;
+            background: rgba(255, 77, 79, 0.1);
+            border-left: 4px solid #ff4d4f;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #d32f2f;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-blue), #002d5a);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(0,85,164,0.3);
+        }
+
+        @keyframes pulse-glow {
+            from { text-shadow: 0 0 10px var(--accent-cyan); transform: scale(1); }
+            to { text-shadow: 0 0 25px var(--accent-cyan); transform: scale(1.03); }
+        }
+    </style>
+</head>
+<body id="dynamic-body">
+
+    <header class="header-electro">
+        <div class="sabic-logo-text">SABIC</div>
+    </header>
+
+    <div class="auth-tabs">
+        <a href="#" class="tab active">ENTRAR</a>
+        <a href="{% url 'cadastro' %}" class="tab">CADASTRAR</a>
+    </div>
+
+    <div class="login-container">
+        <h2>Bem-vindo de volta</h2>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errorlist">
+                    {% for error in form.non_field_errors %}
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label>Seu Telefone</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-mobile-screen-button main-icon"></i>
+                    <select class="country-select" id="countrySelector" onchange="changeTheme()">
+                        <option value="+244" data-bg="linear-gradient(135deg, #ce1126 0%, #000000 50%, #f9d616 100%)">🇦🇴 +244</option>
+                        <option value="+351" data-bg="linear-gradient(135deg, #006600 50%, #ff0000 50%)">🇵🇹 +351</option>
+                        <option value="+55" data-bg="linear-gradient(135deg, #009c3b 0%, #ffdf00 50%, #002776 100%)">🇧🇷 +55</option>
+                        <option value="+238" data-bg="linear-gradient(135deg, #003893 0%, #ffffff 40%, #cf2027 100%)">🇨🇻 +238</option>
+                        <option value="+239" data-bg="linear-gradient(135deg, #12ad2b 0%, #ffce00 50%, #ff0000 100%)">🇸🇹 +239</option>
+                        <option value="+258" data-bg="linear-gradient(135deg, #009739 0%, #000000 50%, #ffd200 100%)">🇲🇿 +258</option>
+                    </select>
+                    {{ form.username }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Sua Senha</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-shield-halved main-icon"></i>
+                    {{ form.password }}
+                    <i class="fa-solid fa-eye toggle-password" id="toggleLoginPass"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-button">
+                <span>ACESSAR</span>
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Mesma lógica de tema do cadastro
+        function changeTheme() {
+            const select = document.getElementById('countrySelector');
+            const selectedOption = select.options[select.selectedIndex];
+            const newBg = selectedOption.getAttribute('data-bg');
+            document.body.style.background = newBg;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Estilização manual para bater com os requisitos
+            const userField = document.querySelector('input[name="username"]');
+            const passField = document.querySelector('input[name="password"]');
+            
+            if(userField) userField.placeholder = 'Número de telefone';
+            if(passField) passField.placeholder = 'Digite sua senha';
+
+            // Visibilidade da senha
+            const toggleBtn = document.querySelector('#toggleLoginPass');
+            if (toggleBtn && passField) {
+                toggleBtn.addEventListener('click', function() {
+                    const type = passField.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passField.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+            
+            changeTheme(); // Inicia com o tema de Angola
+        });
+    </script>
+</body>
+</html>

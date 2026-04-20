@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC | Terminal Eletroquímico{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<div class="electro-wrapper">
+    <div class="electro-container">
+        
+        <div class="electro-header">
+            <div class="header-top">
+                <a href="{% url 'menu' %}" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div class="brand-info">
+                    <span class="brand-title">SABIC INDUSTRIAL</span>
+                    <span class="system-tag">SISTEMA DE FLUXO V4.0</span>
+                </div>
+            </div>
+            
+            <div class="user-status-card">
+                <div class="status-info">
+                    <span class="label">STATUS DO TERMINAL</span>
+                    <span class="value {% if is_estagiario %}status-blocked{% else %}status-online{% endif %}">
+                        {% if is_estagiario %}ACESSO NEGADO (ESTAGIÁRIO){% else %}TERMINAL ONLINE{% endif %}
+                    </span>
+                </div>
+                <div class="work-days">
+                    <i class="fa-regular fa-calendar-check"></i> SEG - SAB
+                </div>
+            </div>
+        </div>
+
+        <div class="process-steps">
+            <div class="step active" id="step-1">
+                <span class="step-num">01</span>
+                <span class="step-txt">AQUISIÇÃO</span>
+            </div>
+            <div class="step disabled" id="step-2">
+                <span class="step-num">02</span>
+                <span class="step-txt">DISTRIBUIÇÃO</span>
+            </div>
+        </div>
+
+        <div class="terminal-body">
+            
+            <div id="section-buy" class="content-fade">
+                <div class="section-meta">
+                    <h3>Catálogo Eletroquímico</h3>
+                    <p>Selecione um ativo para processamento diário</p>
+                </div>
+
+                {% if is_estagiario %}
+                <div class="lock-overlay">
+                    <i class="fa-solid fa-lock"></i>
+                    <p>Estagiários não podem realizar tarefas.<br>Faça upgrade para VIP 1.</p>
+                </div>
+                {% endif %}
+
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-flask-vial"></i></div>
+                        <div class="p-details">
+                            <strong>Anodo de Titânio Gr1</strong>
+                            <span>Revestimento Ru-Ir p/ Eletrólise</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-atom"></i></div>
+                        <div class="p-details">
+                            <strong>Membrana de Troca Iônica</strong>
+                            <span>Série N-212 Alta Condutividade</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-battery-three-quarters"></i></div>
+                        <div class="p-details">
+                            <strong>Eletrólito de Vanádio</strong>
+                            <span>Grau de Pureza 99.9% Industrial</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="p-details">
+                            <strong>Eletrodo de Grafite Isostático</strong>
+                            <span>Densidade 1.85 g/cm³</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="p-details">
+                            <strong>Solução de Hipoclorito</strong>
+                            <span>Concentração Estabilizada 12%</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="p-details">
+                            <strong>Célula de Eletrólise PEM</strong>
+                            <span>Stack de Alta Pressão H2</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-vial"></i></div>
+                        <div class="p-details">
+                            <strong>Catalisador de Platina</strong>
+                            <span>Dispersão em Carbono 40%</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-fill-drip"></i></div>
+                        <div class="p-details">
+                            <strong>Ácido Sulfúrico PA</strong>
+                            <span>Reagente de Análise 98%</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="p-details">
+                            <strong>Retificador de Alta Potência</strong>
+                            <span>Controle de Corrente Constante</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="p-icon"><i class="fa-solid fa-box-archive"></i></div>
+                        <div class="p-details">
+                            <strong>Tanque de Armazenamento FRP</strong>
+                            <span>Resistência Química Extrema</span>
+                        </div>
+                        <button class="buy-btn" {% if is_estagiario %}disabled{% endif %}>Processar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-sell" class="content-fade" style="display: none;">
+                <div class="monitor-box">
+                    <div class="radar"></div>
+                    <div class="monitor-data">
+                        <span class="scan-text">SCANNING GLOBAL MARKETS...</span>
+                        <div class="task-progress">
+                            <div class="progress-bar-fill" id="task-bar"></div>
+                        </div>
+                        <p id="status-text">PRODUTO PRONTO PARA DESCARGA</p>
+                    </div>
+                </div>
+                <button id="finalize-btn" class="action-btn">FINALIZAR VENDA INTERNACIONAL</button>
+            </div>
+
+            <div id="section-done" class="content-fade" style="display: none;">
+                <div class="success-card">
+                    <div class="success-icon"><i class="fa-solid fa-check-double"></i></div>
+                    <h2>Ciclo Concluído</h2>
+                    <p>Sua comissão diária foi processada e enviada para o seu balanço.</p>
+                    <div class="next-task">Próxima tarefa disponível em 24h.</div>
+                </div>
+                <button class="action-btn disabled" disabled>VOLTE AMANHÃ</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #00ff9d;
+        --bg-dark: #0a0e14;
+        --card-dark: #161c24;
+        --text-main: #ffffff;
+        --text-dim: #919eab;
+        --border: #2f3944;
+        --danger: #ff4842;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body { 
+        background: var(--bg-dark); 
+        color: var(--text-main); 
+        font-family: 'Inter', sans-serif; 
+        margin: 0; 
+        overflow-x: hidden; 
+    }
+
+    .electro-wrapper { width: 100%; display: flex; justify-content: center; min-height: 100vh; }
+    .electro-container { width: 100%; max-width: 480px; background: var(--bg-dark); display: flex; flex-direction: column; }
+
+    /* Header */
+    .electro-header { padding: 20px 20px 10px; background: linear-gradient(180deg, #161c24 0%, #0a0e14 100%); }
+    .header-top { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+    .back-btn { color: var(--text-main); font-size: 20px; text-decoration: none; padding: 5px; }
+    .brand-info { display: flex; flex-direction: column; }
+    .brand-title { font-weight: 800; letter-spacing: 1px; font-size: 16px; color: var(--primary); }
+    .system-tag { font-family: 'JetBrains Mono'; font-size: 9px; color: var(--text-dim); }
+
+    .user-status-card { 
+        background: var(--card-dark); 
+        border: 1px solid var(--border); 
+        border-radius: 12px; 
+        padding: 15px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+    .status-info { display: flex; flex-direction: column; }
+    .status-info .label { font-size: 9px; color: var(--text-dim); margin-bottom: 4px; }
+    .status-info .value { font-size: 12px; font-weight: 700; }
+    .status-online { color: var(--primary); }
+    .status-blocked { color: var(--danger); }
+    .work-days { font-size: 10px; background: rgba(0,255,157,0.1); color: var(--primary); padding: 4px 8px; border-radius: 20px; }
+
+    /* Steps */
+    .process-steps { display: flex; background: #000; border-bottom: 1px solid var(--border); }
+    .step { flex: 1; padding: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; filter: grayscale(1); opacity: 0.5; }
+    .step.active { filter: grayscale(0); opacity: 1; border-bottom: 2px solid var(--primary); background: rgba(0,255,157,0.05); }
+    .step-num { font-family: 'JetBrains Mono'; font-weight: 800; color: var(--primary); }
+    .step-txt { font-size: 11px; font-weight: 600; letter-spacing: 1px; }
+
+    /* Terminal Body */
+    .terminal-body { padding: 20px; flex: 1; position: relative; }
+    .section-meta h3 { margin: 0; font-size: 18px; }
+    .section-meta p { color: var(--text-dim); font-size: 12px; margin: 5px 0 20px; }
+
+    /* Overlay Block */
+    .lock-overlay { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(10,14,20,0.8); backdrop-filter: blur(4px); 
+        z-index: 10; display: flex; flex-direction: column; align-items: center; 
+        justify-content: center; text-align: center; color: var(--danger); 
+    }
+    .lock-overlay i { font-size: 40px; margin-bottom: 15px; }
+
+    /* Product Grid */
+    .product-grid { display: flex; flex-direction: column; gap: 12px; }
+    .product-card { 
+        background: var(--card-dark); border: 1px solid var(--border); 
+        border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 15px; 
+    }
+    .p-icon { 
+        width: 45px; height: 45px; background: #1c252e; border-radius: 10px; 
+        display: grid; place-items: center; color: var(--primary); font-size: 20px; 
+    }
+    .p-details { flex: 1; }
+    .p-details strong { display: block; font-size: 13px; margin-bottom: 3px; }
+    .p-details span { font-size: 10px; color: var(--text-dim); display: block; }
+    .buy-btn { 
+        background: var(--primary); color: #000; border: none; padding: 8px 12px; 
+        border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; 
+    }
+    .buy-btn:disabled { background: var(--border); color: var(--text-dim); }
+
+    /* Monitor Box */
+    .monitor-box { 
+        background: #000; border: 1px solid var(--primary); border-radius: 20px; 
+        padding: 40px 20px; text-align: center; margin-bottom: 30px; position: relative;
+    }
+    .scan-text { font-family: 'JetBrains Mono'; font-size: 11px; color: var(--primary); }
+    .task-progress { width: 100%; height: 4px; background: #1a1a1a; border-radius: 2px; margin: 20px 0; overflow: hidden; }
+    .progress-bar-fill { width: 0%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); transition: 0.3s; }
+    
+    .action-btn { 
+        width: 100%; background: var(--primary); color: #000; border: none; 
+        padding: 18px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer;
+    }
+    .action-btn.disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+
+    /* Success Card */
+    .success-card { text-align: center; padding: 40px 0; }
+    .success-icon { 
+        width: 80px; height: 80px; background: rgba(0,255,157,0.1); color: var(--primary); 
+        border-radius: 50%; display: grid; place-items: center; font-size: 35px; margin: 0 auto 20px; 
+    }
+    .next-task { color: var(--text-dim); font-size: 11px; margin-top: 15px; font-family: 'JetBrains Mono'; }
+
+    .content-fade { animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Mobile First Adjustments */
+    @media (max-width: 380px) {
+        .p-details strong { font-size: 11px; }
+        .product-card { padding: 10px; gap: 10px; }
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const buyBtns = document.querySelectorAll('.buy-btn');
+    const finalizeBtn = document.getElementById('finalize-btn');
+    
+    const secBuy = document.getElementById('section-buy');
+    const secSell = document.getElementById('section-sell');
+    const secDone = document.getElementById('section-done');
+    
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+
+    // Verifica se a tarefa já foi concluída hoje via Django Context
+    if ({{ tasks_completed_today|default:0 }} >= 1) {
+        showSection('done');
+    }
+
+    // Lógica de Compra
+    buyBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                showSection('sell');
+                startScanning();
+            }, 1200);
+        });
+    });
+
+    // Lógica de Venda
+    finalizeBtn.addEventListener('click', function() {
+        finalizeBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ENVIANDO...';
+        finalizeBtn.disabled = true;
+
+        fetch("{% url 'process_task' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                setTimeout(() => showSection('done'), 1500);
+            } else {
+                alert(data.message);
+                location.reload();
+            }
+        });
+    });
+
+    function showSection(type) {
+        [secBuy, secSell, secDone].forEach(s => s.style.display = 'none');
+        step1.classList.remove('active');
+        step2.classList.remove('active');
+
+        if (type === 'sell') {
+            secSell.style.display = 'block';
+            step2.classList.add('active');
+            step2.classList.remove('disabled');
+        } else if (type === 'done') {
+            secDone.style.display = 'block';
+            step2.classList.add('active');
+            step2.classList.remove('disabled');
+        } else {
+            secBuy.style.display = 'block';
+            step1.classList.add('active');
+        }
+    }
+
+    function startScanning() {
+        const bar = document.getElementById('task-bar');
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) clearInterval(interval);
+            else {
+                width += 2;
+                bar.style.width = width + '%';
+            }
+        }, 50);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}sabic - Rendimento{% endblock %}
+
+{% block content %}
+<div class="renda-dashboard">
+    
+    {# Barra Superior Minimalista #}
+    <div class="top-bar">
+        <a href="{% url 'home' %}" class="back-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <h1 class="page-title">MEU RENDIMENTO</h1>
+        <div style="width: 45px;"></div> 
+    </div>
+
+    <div class="income-stats-wrapper">
+        
+        <h3 class="section-tag">DADOS DE RENDIMENTOS</h3>
+        
+        {# Primeira Grade: Cards Redondos Expandidos #}
+        <div class="stats-grid">
+            <div class="round-card card-plano">
+                <div class="card-inner">
+                    <i class="fa-solid fa-gem icon-main"></i>
+                    <span class="label">PLANO</span>
+                    <span class="value">
+                        {% if active_level %}
+                            {{ active_level.level.name }}
+                        {% else %}
+                            Plano 0
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="round-card card-saldo">
+                <div class="card-inner">
+                    <i class="fa-solid fa-wallet icon-main"></i>
+                    <span class="label">SALÁRIO</span>
+                    <span class="value">KZ {{ user.available_balance|default:"0.00" }}</span>
+                </div>
+            </div>
+
+            <div class="round-card card-deposito">
+                <div class="card-inner">
+                    <i class="fa-solid fa-circle-arrow-up icon-main"></i>
+                    <span class="label">RECARGA</span>
+                    <span class="value">KZ {{ approved_deposit_total|default:"0" }}</span>
+                </div>
+            </div>
+        </div>
+
+        {# Segunda Grade #}
+        <div class="stats-grid mt-20">
+            <div class="round-card card-hoje">
+                <div class="card-inner">
+                    <i class="fa-solid fa-chart-line icon-main"></i>
+                    <span class="label">LUCRO HOJE</span>
+                    <span class="value">KZ {{ daily_income|default:"0.00" }}</span>
+                </div>
+            </div>
+
+            <div class="round-card card-subsidio">
+                <div class="card-inner">
+                    <i class="fa-solid fa-hand-holding-dollar icon-main"></i>
+                    <span class="label">COMISSÃO</span>
+                    <span class="value">KZ {{ user.subsidy_balance|default:"0.00" }}</span>
+                </div>
+            </div>
+
+            <div class="round-card card-total">
+                <div class="card-inner">
+                    <i class="fa-solid fa-piggy-bank icon-main"></i>
+                    <span class="label">SOMATÓRIO</span>
+                    <span class="value">KZ {{ total_income|default:"0.00" }}</span>
+                </div>
+            </div>
+        </div>
+
+        {# Espaço para Imagem no Fundo #}
+        <div class="footer-image-container">
+            <img src="{% static 'images/banner_rendimento.png' %}" alt="Total Energies Status" class="footer-banner">
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --bg-page: #f4f7fe;
+        --text-dark: #1e272e;
+        --text-muted: #7f8c8d;
+        
+        /* Gradients Profissionais */
+        --grad-plano: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        --grad-saldo: linear-gradient(135deg, #00b894, #55efc4);
+        --grad-deposito: linear-gradient(135deg, #fd79a8, #fab1a0);
+        --grad-hoje: linear-gradient(135deg, #0984e3, #74b9ff);
+        --grad-subsidio: linear-gradient(135deg, #e17055, #ffb142);
+        --grad-total: linear-gradient(135deg, #2d3436, #636e72);
+    }
+
+    body {
+        background-color: var(--bg-page) !important;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        overflow-x: hidden; /* Evita balanço lateral */
+    }
+
+    .renda-dashboard {
+        padding: 15px 10px; /* Reduzi o padding lateral para expandir os cards */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        padding: 0 5px;
+    }
+
+    .back-btn {
+        width: 45px;
+        height: 45px;
+        background: #ffffff;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dark);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        text-decoration: none;
+    }
+
+    .page-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .section-tag {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 1.5px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    /* GRID & ROUND CARDS EXPANDIDOS */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px; /* Espaço entre cards */
+        width: 100%;
+    }
+
+    .mt-20 { margin-top: 20px; }
+
+    .round-card {
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.12);
+        position: relative;
+    }
+
+    .card-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        width: 90%;
+    }
+
+    .icon-main {
+        font-size: 22px; /* Ícones maiores */
+        margin-bottom: 5px;
+    }
+
+    .label {
+        font-size: 9px; /* Texto um pouco maior que o anterior */
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+        opacity: 0.9;
+    }
+
+    .value {
+        font-size: 11px; /* Valor mais legível */
+        font-weight: 800;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Cores */
+    .card-plano { background: var(--grad-plano); }
+    .card-saldo { background: var(--grad-saldo); }
+    .card-deposito { background: var(--grad-deposito); }
+    .card-hoje { background: var(--grad-hoje); }
+    .card-subsidio { background: var(--grad-subsidio); }
+    .card-total { background: var(--grad-total); }
+
+    /* IMAGEM NO FUNDO */
+    .footer-image-container {
+        margin-top: 40px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 30px;
+    }
+
+    .footer-banner {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    /* Ajuste para telas minúsculas */
+    @media (max-width: 350px) {
+        .value { font-size: 10px; }
+        .icon-main { font-size: 18px; }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC | Levantamento{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+{% if messages %}
+<div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; max-width: 400px;">
+    {% for message in messages %}
+    <div style="padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 13px; font-weight: bold; background: {% if message.tags == 'success' %}#22c55e{% else %}#ef4444{% endif %}; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div id="currency-modal" class="modal-full-overlay">
+    <div class="modal-selection-box animate-up">
+        <div class="modal-header-brand">
+            <div class="brand-logo-mini">S</div>
+            <h2 class="modal-title">SELECIONE A MOEDA</h2>
+        </div>
+        <p class="modal-subtitle">Escolha a moeda para converter seu saldo e prosseguir.</p>
+        
+        <div class="currency-grid">
+            <div class="currency-card" onclick="selectCurrency('AO', 1, 'KZ')">
+                <img src="https://flagcdn.com/w80/ao.png" alt="AO">
+                <span>AO (Kz)</span>
+            </div>
+            <div class="currency-card" onclick="selectCurrency('USDT', 0.0011, 'USDT')">
+                <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
+                <span>USDT ($)</span>
+            </div>
+            <div class="currency-card" onclick="selectCurrency('MZ', 0.07, 'MT')">
+                <img src="https://flagcdn.com/w80/mz.png" alt="MZ">
+                <span>MZ (MT)</span>
+            </div>
+            <div class="currency-card" onclick="selectCurrency('BR', 0.006, 'R$')">
+                <img src="https://flagcdn.com/w80/br.png" alt="BR">
+                <span>BR (R$)</span>
+            </div>
+            <div class="currency-card" onclick="selectCurrency('EU', 0.001, '€')">
+                <img src="https://flagcdn.com/w80/eu.png" alt="EU">
+                <span>EU (€)</span>
+            </div>
+        </div>
+        <a href="{% url 'menu' %}" class="btn-cancel-modal">VOLTAR AO MENU</a>
+    </div>
+</div>
+
+<div class="saque-page-dark">
+    <div class="saque-wrapper">
+        <div class="top-header-clean">
+            <a href="{% url 'menu' %}" class="btn-back-square">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <h1 class="header-title-clean">LEVANTAMENTO</h1>
+            <div style="width: 45px;"></div> 
+        </div>
+
+        <div class="balance-card-vip">
+            <div class="balance-header">SALDO CONVERTIDO</div>
+            <div class="balance-main">
+                <span id="converted-balance">---</span> 
+                <small id="current-symbol" class="gold-text">...</small>
+            </div>
+            <div class="balance-footer">
+                <span id="original-base">Base: {{ user.available_balance|default:"0.00" }} KZ</span>
+            </div>
+            <div class="glow-line"></div>
+        </div>
+
+        <div class="form-container-vip">
+            <form method="post" id="form-saque">
+                {% csrf_token %}
+                
+                <input type="hidden" name="selected_currency" id="hidden_currency" value="">
+                <input type="hidden" name="exchange_rate" id="hidden_rate" value="1">
+
+                <div class="amount-entry-section">
+                    <label class="section-label">VALOR A LEVANTAR (NA MOEDA SELECIONADA)</label>
+                    <div class="input-glass-box">
+                        <span id="input-symbol" class="input-prefix">?</span>
+                        <input type="number" name="amount" id="id_amount" step="0.01" required placeholder="0.00">
+                    </div>
+                    <p class="exchange-rate-info" id="rate-display" style="font-size: 11px; margin-top: 8px; color: #94a3b8;">
+                        Selecione uma moeda acima para prosseguir.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn-action-gold">CONFIRMAR LEVANTAMENTO</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { --bg: #05070a; --card: #11141b; --gold: #f5b300; --border: #1e293b; --text: #94a3b8; }
+    
+    /* Prevenção de rolagem horizontal e ajuste de ecrã */
+    html, body { 
+        background: var(--bg); 
+        color: #fff; 
+        font-family: 'Poppins', sans-serif; 
+        margin: 0; 
+        padding: 0;
+        overflow-x: hidden; /* Remove rolagem horizontal */
+        width: 100%;
+    }
+
+    .saque-page-dark { 
+        display: flex; 
+        justify-content: center; 
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    .saque-wrapper { 
+        width: 100%; 
+        max-width: 420px; 
+        padding: 15px; /* Reduzi um pouco o padding para telas pequenas */
+        box-sizing: border-box;
+    }
+
+    .top-header-clean { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+    .btn-back-square { width: 45px; height: 45px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: grid; place-items: center; color: #fff; text-decoration: none; }
+    .header-title-clean { font-size: 14px; font-weight: 800; letter-spacing: 1px; }
+
+    .balance-card-vip { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px 15px; text-align: center; margin-bottom: 30px; position: relative; }
+    .balance-header { font-size: 10px; color: var(--gold); letter-spacing: 2px; font-weight: 800; }
+    .balance-main { font-size: 2.2rem; font-weight: 900; margin: 10px 0; }
+    .gold-text { color: var(--gold); }
+    .glow-line { width: 40px; height: 3px; background: var(--gold); margin: 0 auto; box-shadow: 0 0 15px var(--gold); border-radius: 10px; }
+
+    /* Modal ajuste responsivo */
+    .modal-full-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 15px; }
+    .modal-selection-box { background: var(--card); border: 1px solid var(--border); border-radius: 25px; padding: 25px; width: 100%; max-width: 360px; text-align: center; box-sizing: border-box; }
+    
+    .currency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .currency-card { background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
+    .currency-card img { width: 28px; height: 28px; border-radius: 50%; margin-bottom: 5px; }
+    .currency-card span { display: block; font-size: 10px; font-weight: 700; }
+
+    .section-label { font-size: 10px; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 8px; display: block; }
+    .input-glass-box { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; display: flex; align-items: center; margin-top: 5px; box-sizing: border-box; }
+    .input-prefix { font-weight: 800; color: var(--gold); margin-right: 12px; font-size: 1.1rem; }
+    .input-glass-box input { background: transparent; border: none; color: #fff; font-size: 1.3rem; font-weight: 700; outline: none; width: 100%; }
+    
+    .btn-action-gold { width: 100%; background: var(--gold); border: none; padding: 18px; border-radius: 15px; font-weight: 900; margin-top: 25px; cursor: pointer; color: #000; }
+    
+    .animate-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+    const balanceBase = parseFloat("{{ user.available_balance|default:'0' }}".replace(',', '.'));
+
+    function selectCurrency(code, rate, symbol) {
+        document.getElementById('hidden_currency').value = code;
+        document.getElementById('hidden_rate').value = rate;
+
+        // Mostra quanto o saldo atual vale na moeda escolhida
+        const totalInCurrency = (balanceBase * rate).toFixed(2);
+        
+        document.getElementById('converted-balance').innerText = totalInCurrency;
+        document.getElementById('current-symbol').innerText = symbol;
+        document.getElementById('input-symbol').innerText = symbol;
+        document.getElementById('rate-display').innerHTML = `Câmbio: 1 KZ = ${rate} ${symbol}`;
+        
+        document.getElementById('currency-modal').style.display = 'none';
+    }
+</script>
+{% endblock %}

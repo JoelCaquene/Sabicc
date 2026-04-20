@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SABIC - Tutoriais e Afiliação{% endblock %}
+
+{% block content %}
+<div class="sobre-page-wrapper">
+    <div class="top-navigation">
+        <a href="{% url 'menu' %}" class="back-link">
+            <i class="fas fa-chevron-left"></i> VOLTAR AO MENU
+        </a>
+    </div>
+
+    <header class="sobre-header">
+        <div class="header-content">
+            <i class="fas fa-graduation-cap gold-text animate-bounce"></i>
+            <h1>CENTRO DE FORMAÇÃO</h1>
+            <p>Aprenda a operar e gerir sua rede SABIC</p>
+        </div>
+    </header>
+
+    <div class="sobre-content-grid">
+        
+        <div class="tutorial-card">
+            <div class="card-tag">TUTORIAL 01</div>
+            <h3><i class="fas fa-wallet"></i>DEPÓSITO</h3>
+            <div class="video-container">
+                <video id="vid1" controls controlsList="nodownload">
+                    <source src="{% static 'videos/deposito.mp4' %}" type="video/mp4">
+                    Seu navegador não suporta vídeos.
+                </video>
+            </div>
+            <div class="card-actions">
+                <button onclick="toggleFullScreen('vid1')" class="btn-action"><i class="fas fa-expand"></i> TELA CHEIA</button>
+                <a href="{% static 'videos/deposito.mp4' %}" download class="btn-action btn-dl"><i class="fas fa-download"></i> BAIXAR</a>
+            </div>
+        </div>
+
+        <div class="tutorial-card">
+            <div class="card-tag">TUTORIAL 02</div>
+            <h3><i class="fas fa-tasks"></i>TAREFAS</h3>
+            <div class="video-container">
+                <video id="vid2" controls controlsList="nodownload">
+                    <source src="{% static 'videos/tarefas.mp4' %}" type="video/mp4">
+                </video>
+            </div>
+            <div class="card-actions">
+                <button onclick="toggleFullScreen('vid2')" class="btn-action"><i class="fas fa-expand"></i> TELA CHEIA</button>
+                <a href="{% static 'videos/tarefas.mp4' %}" download class="btn-action btn-dl"><i class="fas fa-download"></i> BAIXAR</a>
+            </div>
+        </div>
+
+        <div class="tutorial-card">
+            <div class="card-tag">TUTORIAL 03</div>
+            <h3><i class="fas fa-hand-holding-usd"></i>SAQUE</h3>
+            <div class="video-container">
+                <video id="vid3" controls controlsList="nodownload">
+                    <source src="{% static 'videos/saque.mp4' %}" type="video/mp4">
+                </video>
+            </div>
+            <div class="card-actions">
+                <button onclick="toggleFullScreen('vid3')" class="btn-action"><i class="fas fa-expand"></i> TELA CHEIA</button>
+                <a href="{% static 'videos/saque.mp4' %}" download class="btn-action btn-dl"><i class="fas fa-download"></i> BAIXAR</a>
+            </div>
+        </div>
+
+        <div class="tutorial-card">
+            <div class="card-tag">TUTORIAL 04</div>
+            <h3><i class="fas fa-user-plus"></i>CONVITE</h3>
+            <div class="video-container">
+                <video id="vid4" controls controlsList="nodownload">
+                    <source src="{% static 'videos/convite.mp4' %}" type="video/mp4">
+                </video>
+            </div>
+            <div class="card-actions">
+                <button onclick="toggleFullScreen('vid4')" class="btn-action"><i class="fas fa-expand"></i> TELA CHEIA</button>
+                <a href="{% static 'videos/convite.mp4' %}" download class="btn-action btn-dl"><i class="fas fa-download"></i> BAIXAR</a>
+            </div>
+        </div>
+
+<style>
+    :root {
+        --dark-primary: #0a0c10;
+        --card-bg: #161b22;
+        --gold: #f5b300;
+        --text-gray: #8b949e;
+        --border: #30363d;
+    }
+
+    body { background: var(--dark-primary); margin: 0; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+    .sobre-page-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding-bottom: 50px; overflow-x: hidden; }
+
+    /* NAVEGAÇÃO */
+    .top-navigation { padding: 15px; position: sticky; top: 0; z-index: 100; background: rgba(10, 12, 16, 0.9); backdrop-filter: blur(10px); }
+    .back-link { color: var(--gold); text-decoration: none; font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
+
+    /* HEADER */
+    .sobre-header { text-align: center; padding: 20px 15px; background: linear-gradient(180deg, #161b22 0%, #0a0c10 100%); border-bottom: 1px solid var(--border); }
+    .sobre-header i { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+    .sobre-header h1 { font-size: 1.3rem; margin: 0; letter-spacing: 2px; }
+    .sobre-header p { font-size: 0.8rem; color: var(--text-gray); margin-top: 5px; }
+
+    /* GRID DE CONTEÚDO */
+    .sobre-content-grid { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* CARDS DE TUTORIAL */
+    .tutorial-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; position: relative; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .card-tag { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: var(--gold); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+    .tutorial-card h3 { font-size: 0.9rem; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px; color: var(--gold); }
+    
+    .video-container { width: 100%; border-radius: 10px; overflow: hidden; background: #000; border: 1px solid var(--border); line-height: 0; }
+    video { width: 100%; height: auto; outline: none; }
+
+    .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .btn-action { background: #21262d; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; }
+    .btn-action:active { transform: scale(0.95); background: #30363d; }
+    .btn-dl { background: rgba(245, 179, 0, 0.1); border-color: var(--gold); color: var(--gold); }
+
+    /* CARDS DE INFORMAÇÃO */
+    .info-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border); padding: 15px; }
+    .gold-border { border-left: 4px solid var(--gold); }
+    .info-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .info-header i { color: var(--gold); }
+    .info-header h3 { font-size: 0.9rem; margin: 0; }
+    .info-img { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+
+    /* TABELA PREMIUM */
+    .table-scroll-container { width: 100%; overflow-x: auto; }
+    .premium-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    .premium-table th { text-align: left; padding: 10px; color: var(--text-gray); border-bottom: 1px solid var(--border); }
+    .premium-table td { padding: 12px 10px; border-bottom: 1px solid rgba(48, 54, 61, 0.5); }
+    .txt-green { color: #238636; font-weight: 800; }
+
+    /* ANIMAÇÃO */
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .animate-bounce { animation: bounce 2s infinite; }
+
+    @media (max-width: 360px) {
+        .tutorial-card h3 { font-size: 0.8rem; }
+        .btn-action { font-size: 0.6rem; }
+    }
+</style>
+
+<script>
+    function toggleFullScreen(id) {
+        const video = document.getElementById(id);
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) { /* Safari */
+            video.webkitRequestFullscreen();
+        } else if (video.msRequestFullscreen) { /* IE11 */
+            video.msRequestFullscreen();
+        }
+    }
+</script>
+{% endblock %}
