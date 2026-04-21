@@ -13,7 +13,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_filter = ('is_staff', 'is_active', 'level_active')
     ordering = ('-date_joined',)
 
-# --- CONFIGURAÇÕES DE DEPÓSITO ---
+# --- CONFIGURAÇÕES DE DEPÓSITO (ATUALIZADO COM SOMA AUTOMÁTICA) ---
 @admin.register(Deposit)
 class DepositAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount', 'payment_method', 'payer_name', 'is_approved', 'created_at', 'proof_link') 
@@ -26,6 +26,22 @@ class DepositAdmin(admin.ModelAdmin):
         ('Status e Aprovação', {'fields': ('is_approved', 'created_at')}),
         ('Visualização do Comprovativo', {'fields': ('current_proof_display',)}),
     )
+
+    def save_model(self, request, obj, form, change):
+        """
+        Lógica para somar o saldo quando o depósito for aprovado.
+        """
+        if change:  # Se o registro está sendo editado
+            # Busca o estado anterior do banco de dados
+            old_obj = Deposit.objects.get(pk=obj.pk)
+            
+            # Se 'is_approved' mudou de False para True agora
+            if not old_obj.is_approved and obj.is_approved:
+                user = obj.user
+                user.available_balance += obj.amount
+                user.save()
+        
+        super().save_model(request, obj, form, change)
 
     def proof_link(self, obj):
         if obj.proof_of_payment:
