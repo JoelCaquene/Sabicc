@@ -1,87 +1,94 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}sabic - Rendimento{% endblock %}
+{% block title %}Sabic - Terminal de Rendimentos{% endblock %}
 
 {% block content %}
-<div class="renda-dashboard">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="terminal-dark">
     
     {# Barra Superior Minimalista #}
     <div class="top-bar">
         <a href="{% url 'home' %}" class="back-btn">
-            <i class="fa-solid fa-chevron-left"></i>
+            <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <h1 class="page-title">MEU RENDIMENTO</h1>
-        <div style="width: 45px;"></div> 
+        <div class="brand-status">
+            <span class="status-dot"></span>
+            <h1 class="page-title">ACCOUNTING CENTER</h1>
+        </div>
+        <div class="currency-badge">USD/AOA</div> 
     </div>
 
-    <div class="income-stats-wrapper">
+    <div class="main-container">
         
-        <h3 class="section-tag">DADOS DE RENDIMENTOS</h3>
+        {# Seção de Gráfico Principal #}
+        <div class="chart-container">
+            <div class="chart-header">
+                <span class="chart-label"><i class="fa-solid fa-chart-area"></i> Market Performance</span>
+                <span class="chart-value">LIVE ANALYSIS</span>
+            </div>
+            <canvas id="performanceChart" height="180"></canvas>
+        </div>
+
+        <h3 class="section-tag">ASSETS & PERFORMANCE</h3>
         
-        {# Primeira Grade: Cards Redondos Expandidos #}
-        <div class="stats-grid">
-            <div class="round-card card-plano">
-                <div class="card-inner">
-                    <i class="fa-solid fa-gem icon-main"></i>
-                    <span class="label">PLANO</span>
+        {# Grade de Cards Estilo Corretora #}
+        <div class="assets-grid">
+            <div class="asset-card">
+                <div class="asset-icon blue">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div class="asset-info">
+                    <span class="label">CURRENT PLAN</span>
                     <span class="value">
-                        {% if active_level %}
-                            {{ active_level.level.name }}
-                        {% else %}
-                            Plano 0
-                        {% endif %}
+                        {% if active_level %}{{ active_level.level.name }}{% else %}LEVEL 0{% endif %}
                     </span>
                 </div>
             </div>
-            
-            <div class="round-card card-saldo">
-                <div class="card-inner">
-                    <i class="fa-solid fa-wallet icon-main"></i>
-                    <span class="label">SALÁRIO</span>
-                    <span class="value">KZ {{ user.available_balance|default:"0.00" }}</span>
+
+            <div class="asset-card">
+                <div class="asset-icon green">
+                    <i class="fa-solid fa-vault"></i>
+                </div>
+                <div class="asset-info">
+                    <span class="label">AVAILABLE BALANCE</span>
+                    <span class="value highlight">KZ {{ user.available_balance|default:"0.00" }}</span>
                 </div>
             </div>
 
-            <div class="round-card card-deposito">
-                <div class="card-inner">
-                    <i class="fa-solid fa-circle-arrow-up icon-main"></i>
-                    <span class="label">RECARGA</span>
-                    <span class="value">KZ {{ approved_deposit_total|default:"0" }}</span>
+            <div class="asset-card">
+                <div class="asset-icon gold">
+                    <i class="fa-solid fa-coins"></i>
                 </div>
-            </div>
-        </div>
-
-        {# Segunda Grade #}
-        <div class="stats-grid mt-20">
-            <div class="round-card card-hoje">
-                <div class="card-inner">
-                    <i class="fa-solid fa-chart-line icon-main"></i>
-                    <span class="label">LUCRO HOJE</span>
+                <div class="asset-info">
+                    <span class="label">DAILY EARNINGS</span>
                     <span class="value">KZ {{ daily_income|default:"0.00" }}</span>
+                    <span class="trend up"><i class="fa-solid fa-caret-up"></i> +2.4%</span>
                 </div>
             </div>
 
-            <div class="round-card card-subsidio">
-                <div class="card-inner">
-                    <i class="fa-solid fa-hand-holding-dollar icon-main"></i>
-                    <span class="label">COMISSÃO</span>
+            <div class="asset-card">
+                <div class="asset-icon purple">
+                    <i class="fa-solid fa-parachute-box"></i>
+                </div>
+                <div class="asset-info">
+                    <span class="label">SUBSIDY FUND</span>
                     <span class="value">KZ {{ user.subsidy_balance|default:"0.00" }}</span>
                 </div>
             </div>
+        </div>
 
-            <div class="round-card card-total">
-                <div class="card-inner">
-                    <i class="fa-solid fa-piggy-bank icon-main"></i>
-                    <span class="label">SOMATÓRIO</span>
-                    <span class="value">KZ {{ total_income|default:"0.00" }}</span>
-                </div>
+        {# Mini Gráficos de Coluna #}
+        <div class="secondary-charts">
+            <div class="mini-chart-box">
+                <canvas id="miniChart1"></canvas>
+                <span class="mini-label">RECARGAS: {{ approved_deposit_total|default:"0" }}</span>
             </div>
         </div>
 
-        {# Espaço para Imagem no Fundo #}
-        <div class="footer-image-container">
-            <img src="{% static 'images/banner_rendimento.png' %}" alt="Total Energies Status" class="footer-banner">
+        <div class="footer-banner-wrapper">
+            <img src="{% static 'images/banner_rendimento.png' %}" alt="Global Connectivity" class="global-banner">
         </div>
 
     </div>
@@ -89,30 +96,27 @@
 
 <style>
     :root {
-        --bg-page: #f4f7fe;
-        --text-dark: #1e272e;
-        --text-muted: #7f8c8d;
-        
-        /* Gradients Profissionais */
-        --grad-plano: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        --grad-saldo: linear-gradient(135deg, #00b894, #55efc4);
-        --grad-deposito: linear-gradient(135deg, #fd79a8, #fab1a0);
-        --grad-hoje: linear-gradient(135deg, #0984e3, #74b9ff);
-        --grad-subsidio: linear-gradient(135deg, #e17055, #ffb142);
-        --grad-total: linear-gradient(135deg, #2d3436, #636e72);
+        --bg-dark: #0a0e14;
+        --card-dark: #151921;
+        --accent-blue: #3d5afe;
+        --accent-green: #00e676;
+        --accent-gold: #ffc107;
+        --text-main: #e0e6ed;
+        --text-dim: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.03);
     }
 
     body {
-        background-color: var(--bg-page) !important;
-        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-dark) !important;
+        font-family: 'JetBrains Mono', 'Inter', monospace;
+        color: var(--text-main);
         margin: 0;
-        overflow-x: hidden; /* Evita balanço lateral */
+        overflow-x: hidden;
     }
 
-    .renda-dashboard {
-        padding: 15px 10px; /* Reduzi o padding lateral para expandir os cards */
-        width: 100%;
-        box-sizing: border-box;
+    .terminal-dark {
+        padding: 20px 15px;
+        max-width: 100%;
     }
 
     /* TOP BAR */
@@ -120,116 +124,199 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 25px;
-        padding: 0 5px;
+        margin-bottom: 20px;
     }
 
     .back-btn {
-        width: 45px;
-        height: 45px;
-        background: #ffffff;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-dark);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        color: var(--text-main);
+        font-size: 20px;
         text-decoration: none;
     }
 
+    .brand-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-green);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-green);
+        animation: pulse 2s infinite;
+    }
+
     .page-title {
-        font-size: 18px;
-        font-weight: 800;
-        color: var(--text-dark);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 2px;
         margin: 0;
     }
 
-    .section-tag {
-        font-size: 12px;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        letter-spacing: 1.5px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
+    .currency-badge {
+        background: var(--accent-blue);
+        font-size: 10px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
     }
 
-    /* GRID & ROUND CARDS EXPANDIDOS */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px; /* Espaço entre cards */
-        width: 100%;
+    /* CHARTS */
+    .chart-container {
+        background: var(--card-dark);
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 25px;
+        border: 1px solid var(--glass);
     }
 
-    .mt-20 { margin-top: 20px; }
-
-    .round-card {
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
+    .chart-header {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.12);
-        position: relative;
+        justify-content: space-between;
+        margin-bottom: 15px;
     }
 
-    .card-inner {
+    .chart-label { font-size: 12px; color: var(--text-dim); }
+    .chart-value { font-size: 10px; color: var(--accent-blue); font-weight: bold; }
+
+    /* ASSETS GRID */
+    .assets-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .asset-card {
+        background: var(--card-dark);
+        border-radius: 12px;
+        padding: 15px;
         display: flex;
         flex-direction: column;
+        gap: 12px;
+        border: 1px solid var(--glass);
+        transition: transform 0.3s;
+    }
+
+    .asset-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
-        width: 90%;
+        font-size: 18px;
     }
 
-    .icon-main {
-        font-size: 22px; /* Ícones maiores */
-        margin-bottom: 5px;
+    .blue { background: rgba(61, 90, 254, 0.1); color: var(--accent-blue); }
+    .green { background: rgba(0, 230, 118, 0.1); color: var(--accent-green); }
+    .gold { background: rgba(255, 193, 7, 0.1); color: var(--accent-gold); }
+    .purple { background: rgba(170, 0, 255, 0.1); color: #aa00ff; }
+
+    .label { font-size: 9px; color: var(--text-dim); display: block; margin-bottom: 4px; }
+    .value { font-size: 13px; font-weight: 700; }
+    .highlight { color: var(--accent-green); }
+
+    .trend { font-size: 9px; margin-top: 4px; display: block; }
+    .up { color: var(--accent-green); }
+
+    .section-tag {
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 3px;
+        margin: 25px 0 15px 0;
+        text-align: center;
     }
 
-    .label {
-        font-size: 9px; /* Texto um pouco maior que o anterior */
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        margin-bottom: 2px;
-        opacity: 0.9;
+    .secondary-charts {
+        margin-top: 20px;
+        background: var(--card-dark);
+        padding: 15px;
+        border-radius: 12px;
     }
 
-    .value {
-        font-size: 11px; /* Valor mais legível */
-        font-weight: 800;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    .mini-label {
+        display: block;
+        text-align: center;
+        font-size: 10px;
+        margin-top: 8px;
+        color: var(--text-dim);
     }
 
-    /* Cores */
-    .card-plano { background: var(--grad-plano); }
-    .card-saldo { background: var(--grad-saldo); }
-    .card-deposito { background: var(--grad-deposito); }
-    .card-hoje { background: var(--grad-hoje); }
-    .card-subsidio { background: var(--grad-subsidio); }
-    .card-total { background: var(--grad-total); }
-
-    /* IMAGEM NO FUNDO */
-    .footer-image-container {
-        margin-top: 40px;
+    .global-banner {
         width: 100%;
-        display: flex;
-        justify-content: center;
-        padding-bottom: 30px;
+        border-radius: 15px;
+        margin-top: 25px;
+        opacity: 0.6;
+        filter: grayscale(0.5);
     }
 
-    .footer-banner {
-        width: 100%;
-        max-width: 400px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Ajuste para telas minúsculas */
-    @media (max-width: 350px) {
-        .value { font-size: 10px; }
-        .icon-main { font-size: 18px; }
-    }
+    /* Mobile First - No Horizontal Scroll */
+    canvas { max-width: 100% !important; }
 </style>
+
+<script>
+    // Gráfico de Performance Principal
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+            datasets: [{
+                label: 'Global Yield',
+                data: [12, 19, 15, 25, 22, 30],
+                borderColor: '#3d5afe',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                backgroundColor: (context) => {
+                    const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 200);
+                    gradient.addColorStop(0, 'rgba(61, 90, 254, 0.3)');
+                    gradient.addColorStop(1, 'rgba(61, 90, 254, 0)');
+                    return gradient;
+                },
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#5f7181', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } }
+            }
+        }
+    });
+
+    // Mini Gráfico de Barras
+    const ctxMini = document.getElementById('miniChart1').getContext('2d');
+    new Chart(ctxMini, {
+        type: 'bar',
+        data: {
+            labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+            datasets: [{
+                data: [40, 60, 50, 80, 70, 90, 100],
+                backgroundColor: '#00e676',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { display: false } },
+                y: { display: false }
+            }
+        }
+    });
+</script>
 {% endblock %}
