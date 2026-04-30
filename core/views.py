@@ -397,7 +397,7 @@ def equipa(request):
 def roleta(request):
     user = request.user
     roulette_settings = RouletteSettings.objects.first()
-    prizes_list = [p.strip() for p in roulette_settings.prizes.split(',')] if roulette_settings and roulette_settings.prizes else ['0', '500', '1000', '0', '5000', '200', '0', '10000']
+    prizes_list = [p.strip() for p in roulette_settings.prizes.split(',')] if roulette_settings and roulette_settings.prizes else ['800', '500', '1000', '750', '5000', '500', '0', '1500' '200' '1500' '750' '400']
     recent_winners = Roulette.objects.filter(is_approved=True).order_by('-spin_date')[:10]
     context = {'roulette_spins': user.roulette_spins, 'prizes_list': prizes_list, 'recent_winners': recent_winners}
     return render(request, 'roleta.html', context)
@@ -410,7 +410,7 @@ def spin_roulette(request):
         return JsonResponse({'success': False, 'message': 'Sem giros disponíveis.'})
 
     roulette_settings = RouletteSettings.objects.first()
-    prizes_raw = [p.strip() for p in roulette_settings.prizes.split(',')] if roulette_settings and roulette_settings.prizes else ['0', '500', '1000', '0', '5000', '200', '0', '10000']
+    prizes_raw = [p.strip() for p in roulette_settings.prizes.split(',')] if roulette_settings and roulette_settings.prizes else ['800', '500', '1000', '750', '5000', '500', '0', '1500' '200' '1500' '750' '400']
     
     weighted_pool = []
     for p in prizes_raw:
